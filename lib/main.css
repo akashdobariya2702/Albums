@@ -1,0 +1,101 @@
+.on_login{
+	vertical-align:middle;
+	margin-top: 15%;
+	display: none;
+}
+
+.on_login img{
+    cursor: pointer;
+}
+
+.after_login h3, .after_login img{
+    display: inline-block;
+}
+
+.after_login{
+	display: none;
+	border:thick solid #428bca;
+}
+
+.logout{
+    float: right; 
+    cursor: pointer;
+    margin-top: 1%;
+}
+
+#profile_pic{
+	width: 100%;
+}
+
+.img-container {
+    display: inline-block;
+    width: 210px;
+    height: 290px;
+    position: relative;
+    margin-left:5%;
+    margin-bottom: 5%;
+    border:thick solid #428bca;
+}
+
+.img-container img {
+    display: block;
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+    opacity: 1; 
+    filter: alpha(opacity=100);
+}
+
+.img-container img:hover { 
+    opacity: 0.3; 
+    filter: alpha(opacity=30);
+}
+
+.content{
+    padding: 2%;
+}
+
+.flexslider {
+    width: 350mm;
+    height: 140mm;
+}
+
+.flexslider .slides img {
+    max-width: 350mm;
+    max-height: 140mm;
+}
+
+.img-container input[type="checkbox"]{
+    margin-left: 45%;
+}
+
+.img-container button[type="button"]{
+    margin-left: 2%;
+    width: 25mm;
+}
+
+.btn-primary{
+    margin: 3% !important;
+    width: 95%;
+}
+
+#mydiv {  
+    display: none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1000;
+    background-color:grey;
+    opacity: .8;
+ }
+
+.ajax-loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -32px; /* -1 * image width / 2 */
+    margin-top: -32px;  /* -1 * image height / 2 */
+    display: block;   
+}
