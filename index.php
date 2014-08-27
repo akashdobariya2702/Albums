@@ -92,6 +92,7 @@ require_once("config.php"); // Inforamation of Facebook App
       $(".on_login").hide(); // hide login button
       $(".after_login").show(); // show the div which contains user information.
 
+      // FB.api is for call the graph api.
       FB.api('/me', function(response) {
         $("#profile_name").text(response.name); // getting user name.
         
@@ -105,7 +106,7 @@ require_once("config.php"); // Inforamation of Facebook App
       FB.api('/me/albums', function(response) {
         var list="";
         $.each(response.data, function(index, element) {
-          list+="<div class='img-container'><span>"+element.name+"</span><a href='slides.php?id="+element.id+"'><img src='https://graph.facebook.com/"+element.id+"/picture?type=album&access_token="+FB.getAccessToken()+"' onclick='fetchPhotos("+element.id+")'/></a><input type='checkbox' name='check' value='"+element.id+"'><br><button type='button' onclick=downloadThis("+element.id+") class='btn btn-default'>Download</button><button type='button' onclick=moveThis("+element.id+") class='btn btn-default'>Move</button></div>";
+          list+="<div class='img-container'><span>"+element.name+"</span><a href='slides.php?id="+element.id+"'><img src='https://graph.facebook.com/"+element.id+"/picture?type=album&access_token="+FB.getAccessToken()+"'/></a><input type='checkbox' name='check' value='"+element.id+"'><br><button type='button' onclick=downloadThis("+element.id+") class='btn btn-default'>Download</button><button type='button' onclick=moveThis("+element.id+") class='btn btn-default'>Move</button></div>";
         });
         $(".albums").append(list);
       });
@@ -244,7 +245,7 @@ require_once("config.php"); // Inforamation of Facebook App
       FB.logout(function(){document.location.reload();}); //reload the page
     }
 
-    // Initialization.
+    //basic setup Initialization.
     (function(d, s, id){
          var js, fjs = d.getElementsByTagName(s)[0];
          if (d.getElementById(id)) {return;}

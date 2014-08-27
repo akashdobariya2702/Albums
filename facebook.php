@@ -136,24 +136,25 @@ function Zip($source, $destination)
 // download the album using album id and it will copy image into folder(path) 
 function downloadAlbum($id, $path)
 {
-  global $session; // need to use $session
-  //$data = "";
+  global $session;
+  $data = "";
   try {
-    ini_set('max_execution_time', 300); //execution time limit
-    $request = new FacebookRequest($session, "GET", "/".$id."/photos?fields=source"); // graph url for getting images information.
+    ini_set('max_execution_time', 300);
+    $request = new FacebookRequest($session, "GET", "/".$id."/photos?fields=source");
     $response = $request->execute();
-    $graphObject = $response->getGraphObject // getting the object.
-    $album =  $graphObject->getProperty('data'); // getting the data from the object
+    $graphObject = $response->getGraphObject();
 
-    $album_data = $album->asArray(); // use albums images data asArray
+    $album =  $graphObject->getProperty('data');
+
+    $album_data = $album->asArray();
     $fileName = 1;
     foreach($album_data as $row){
-        $file = (array)$row; // $row is like json formet. we need to conver array.
-        $ext = pathinfo($file['source'], PATHINFO_EXTENSION); // image extension.
+        $file = (array)$row;
+        $ext = pathinfo($file['source'], PATHINFO_EXTENSION);
         if(strpos($ext,'?') !== false)
-          $ext = substr($ext, 0, strpos($ext, "?")); 
-        copy($file['source'], $path."/".$fileName.".".$ext); // copy images from source to $path folder.
-        //$data.=$fileName.".".$ext."\n";
+          $ext = substr($ext, 0, strpos($ext, "?"));
+        copy($file['source'], $path."/".$fileName.".".$ext);
+        $data.=$fileName.".".$ext."\n";
         $fileName++;
     }
     return true;
@@ -179,7 +180,7 @@ if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
 
     $folder = $user_profile->getName(); // getting user name
     $path = "download/".$folder;
-    //$zipName = $folder;
+    $zipName = $folder;
 
     if(is_dir($path))
       rrmdir($path);
@@ -207,7 +208,7 @@ if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
     if($sizeArray == 1) //if only 1 album to download then set the main $path.
     {
       $path = $curunt_path; 
-      //$zipName = $id;
+      $zipName = $id;
     }
 
     if(is_dir($curunt_path))

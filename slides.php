@@ -1,3 +1,6 @@
+<?php
+require_once("config.php"); // Inforamation of Facebook App
+?>
 <!-- Show the album images in slides -->
 <!DOCTYPE html>
 <html>
