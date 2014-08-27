@@ -137,24 +137,23 @@ function Zip($source, $destination)
 function downloadAlbum($id, $path)
 {
   global $session; // need to use $session
-  $data = "";
+  //$data = "";
   try {
-    ini_set('max_execution_time', 300); // execution time limit
-    $request = new FacebookRequest($session, "GET", "/".$id."/photos?fields=source");
+    ini_set('max_execution_time', 300); //execution time limit
+    $request = new FacebookRequest($session, "GET", "/".$id."/photos?fields=source"); // graph url for getting images information.
     $response = $request->execute();
-    $graphObject = $response->getGraphObject();
+    $graphObject = $response->getGraphObject // getting the object.
+    $album =  $graphObject->getProperty('data'); // getting the data from the object
 
-    $album =  $graphObject->getProperty('data');
-
-    $album_data = $album->asArray();
+    $album_data = $album->asArray(); // use albums images data asArray
     $fileName = 1;
     foreach($album_data as $row){
-        $file = (array)$row;
-        $ext = pathinfo($file['source'], PATHINFO_EXTENSION);
+        $file = (array)$row; // $row is like json formet. we need to conver array.
+        $ext = pathinfo($file['source'], PATHINFO_EXTENSION); // image extension.
         if(strpos($ext,'?') !== false)
-          $ext = substr($ext, 0, strpos($ext, "?"));
-        copy($file['source'], $path."/".$fileName.".".$ext);
-        $data.=$fileName.".".$ext."\n";
+          $ext = substr($ext, 0, strpos($ext, "?")); 
+        copy($file['source'], $path."/".$fileName.".".$ext); // copy images from source to $path folder.
+        //$data.=$fileName.".".$ext."\n";
         $fileName++;
     }
     return true;
@@ -166,27 +165,30 @@ function downloadAlbum($id, $path)
   }
 }
 
+// if AlbumId set then it will allow to enter.
 if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
 {
-  $albumList = explode(",", $_POST['AlbumId']);
-  $sizeArray = count($albumList);
+  $albumList = explode(",", $_POST['AlbumId']); // make the array of AlbumId.
+  $sizeArray = count($albumList); // album length.
   if($sizeArray>1)
-  {
+  { 
+    // if morethan 1 album. creating main folder for all albums
     $user_profile = (new FacebookRequest(
       $session, 'GET', '/me'
     ))->execute()->getGraphObject(GraphUser::className());
 
-    $folder = $user_profile->getName();
+    $folder = $user_profile->getName(); // getting user name
     $path = "download/".$folder;
-    $zipName = $folder;
+    //$zipName = $folder;
 
     if(is_dir($path))
       rrmdir($path);
-    mkdir($path);
+    mkdir($path); // make directory
   }
   else
-    $path = "download";
+    $path = "download"; // if only one album
 
+  // loop for all albums
   foreach ($albumList as $key => $value) 
   {
     $id = $value;
@@ -194,18 +196,18 @@ if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
     $request = new FacebookRequest($session, "GET", "/".$id."/");
     $response = $request->execute();
     $graphObject = $response->getGraphObject();
-    $album_name = $graphObject->getProperty('name');
+    $album_name = $graphObject->getProperty('name'); // getting specific album name using album id.
 
     if(isset($_POST['Move']) && $_POST['Move'] != "")
     {
-      $album_name = str_replace(" ","",$album_name);
+      $album_name = str_replace(" ","",$album_name); // for picasa move.
     }
-    $curunt_path =  $path."/".$album_name;
+    $curunt_path =  $path."/".$album_name; // download path for curunt album.
 
-    if($sizeArray == 1)
+    if($sizeArray == 1) //if only 1 album to download then set the main $path.
     {
-      $path = $curunt_path;
-      $zipName = $id;
+      $path = $curunt_path; 
+      //$zipName = $id;
     }
 
     if(is_dir($curunt_path))
