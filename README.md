@@ -1,20 +1,25 @@
 # Albums
+
 ```
+
 ## Description
 
 Facebook Albums provides the facilities of Slideshow, Download and Move to Google+(picasa). User must have to get authentication from Facebook to use album slideshow and download album. And for use the "Move" functionalty User must have to get authentication from google. 
 
 ```
+
 ## Requirements
 
 PHP 5.4 or higher.
 
 ```
+
 ## Demo
 
 Click on http://album123.herokuapp.com/ for demo.
 
 ```
+
 ## Functionalities
 
 - Fetch all albums from the facebook.
@@ -29,6 +34,7 @@ Click on http://album123.herokuapp.com/ for demo.
 - Move selected albums to picasa.
 
 ```
+
 ## Technologies And Libraries
 
 - Bootstrap 3.2.0 for CSS/JS.
