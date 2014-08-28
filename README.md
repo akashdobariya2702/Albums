@@ -10,7 +10,7 @@ PHP 5.4 or higher.
 
 ## Demo
 
-Click on http://album123.herokuapp.com/ for demo.
+[Click Here!](http://album123.herokuapp.com/) for demo.
 
 ## Functionalities
 
