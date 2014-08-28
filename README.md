@@ -7,12 +7,12 @@ Facebook Albums provides the facilities of Slideshow, Download and Move to Googl
 ```
 ## Requirements
 
-PHP 5.4 or higher
+PHP 5.4 or higher.
 
 ```
 ## Demo
 
-Click on http://album123.herokuapp.com/
+Click on http://album123.herokuapp.com/ for demo.
 
 ```
 ## Functionalities
@@ -39,6 +39,6 @@ Click on http://album123.herokuapp.com/
 - Facebook-php 4.0 for backend.
 - Google OAuth 2.0 for access google api.
 
-
+```
 
 
