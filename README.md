@@ -12,7 +12,7 @@ PHP 5.4 or higher
 ```
 ## Demo
 
-[Click Here For Albums](http://album123.herokuapp.com/)
+Click on http://album123.herokuapp.com/
 
 ```
 ## Functionalities
@@ -30,6 +30,7 @@ PHP 5.4 or higher
 
 ```
 ## Technologies And Libraries
+
 - Bootstrap 3.2.0 for CSS/JS.
 - fileDownload for download the file(Works like ajax).
 - FlexSlider-master for view the album images.
