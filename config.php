@@ -1,4 +1,4 @@
 <?php
-$APP_ID = "xxxxxxxxxxxxxx"; // Facebook App ID
-$APP_SECRET = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // Facebook Secrete ID
+$APP_ID = "xxxxxxxxxxxxxxx"; // Facebook App ID
+$APP_SECRET = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // Facebook Secrete ID
 ?>

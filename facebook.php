@@ -1,7 +1,7 @@
 <?php
 // for store the tocken value in session.
 session_start();
-
+//print_r($_SESSION);
 require_once("config.php");
  
 require_once( 'lib/Facebook/HttpClients/FacebookHttpable.php' );
@@ -13,7 +13,7 @@ require_once( 'lib/Facebook/Entities/SignedRequest.php' );
  
 // other files remain the same
 require_once( 'lib/Facebook/FacebookSession.php' );
-//require_once( 'Facebook/FacebookRedirectLoginHelper.php' );
+require_once( 'lib/Facebook/FacebookRedirectLoginHelper.php' );
 require_once( 'lib/Facebook/FacebookRequest.php' );
 require_once( 'lib/Facebook/FacebookResponse.php' );
 require_once( 'lib/Facebook/FacebookSDKException.php' );
@@ -37,7 +37,7 @@ use Facebook\Entities\SignedRequest;
  
 // other files remain the same
 use Facebook\FacebookSession;
-//use Facebook\FacebookRedirectLoginHelper;
+use Facebook\FacebookRedirectLoginHelper;
 use Facebook\FacebookRequest;
 use Facebook\FacebookResponse;
 use Facebook\FacebookSDKException;
@@ -56,9 +56,9 @@ FacebookSession::setDefaultApplication($APP_ID, $APP_SECRET);
 // if POST with facebook_token then we need to store in the session for use it in other events.
 if(isset($_POST['facebook_token']) && $_POST['facebook_token'] != "")
 {
-	// storing the token value in session
-	$_SESSION['facebook_token'] = $_POST['facebook_token'];
-	return true;
+  // storing the token value in session
+  $_SESSION['facebook_token'] = $_POST['facebook_token'];
+  return true;
 }
 
 // destroying the session when user logout.
@@ -71,7 +71,7 @@ if(isset($_POST['facebook_token_destroy']) && $_POST['facebook_token_destroy'] !
 // if facebook_token is not set then we have to stop the script. otherwise script will not work.
 if(!isset($_SESSION['facebook_token']))
 {
-	die();
+  die();
 }
 
 // get token for make some event.
@@ -169,6 +169,7 @@ function downloadAlbum($id, $path)
 // if AlbumId set then it will allow to enter.
 if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
 {
+  //ini_set('max_execution_time', 1000);
   $albumList = explode(",", $_POST['AlbumId']); // make the array of AlbumId.
   $sizeArray = count($albumList); // album length.
   if($sizeArray>1)
@@ -184,7 +185,9 @@ if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
 
     if(is_dir($path))
       rrmdir($path);
-    mkdir($path); // make directory
+    //$old_umask = umask(0);
+    mkdir($path, 0777); // make directory
+    //umask($old_umask);
   }
   else
     $path = "download"; // if only one album
@@ -213,7 +216,9 @@ if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
 
     if(is_dir($curunt_path))
       rrmdir($curunt_path);
-    mkdir($curunt_path);
+    //$old_umask = umask(0);
+    mkdir($curunt_path, 0777);
+    //umask($old_umask);
 
     downloadAlbum($id, $curunt_path);
   }

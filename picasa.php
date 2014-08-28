@@ -235,7 +235,7 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
                         }
                         
                     }   
-
+                header("Location:index.php?msg=Album Moved Successfully");
             }
         }
     }

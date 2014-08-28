@@ -85,7 +85,7 @@ require_once("config.php"); // Inforamation of Facebook App
               },
               success:function(result)
               {
-
+              
               }
       });
 
@@ -301,6 +301,9 @@ require_once("config.php"); // Inforamation of Facebook App
       </div>
       <div class="row content">
         <!-- below div for profile image and button for download and move -->
+        <?php if(isset($_GET['msg']) && $_GET['msg'] != ""){ ?>
+        <div class="alert alert-success" role="alert"><?php echo $_GET['msg']; ?></div>
+        <?php } ?>
         <div class="col-md-3">
           <img id="profile_pic" src="">
           <button type="button" class="btn btn-primary" onclick="downloadAll()">Download All Albums</button>
