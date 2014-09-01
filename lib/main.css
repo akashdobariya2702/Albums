@@ -55,7 +55,7 @@
     padding: 2%;
 }
 
-.flexslider {
+/* .flexslider {
     width: 390mm;
     height: 150mm;
 }
@@ -63,7 +63,7 @@
 .flexslider .slides img {
     max-width: 350mm;
     max-height: 140mm;
-}
+} */
 
 .img-container input[type="checkbox"]{
     margin-left: 45%;

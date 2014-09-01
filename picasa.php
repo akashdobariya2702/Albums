@@ -118,7 +118,7 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
     //$service = new Zend_Gdata_Photos(getAuthSubHttpClient());
 
     // uploading photo into album.
-    function uploadPhotoIntoAlbum($service, $albumName, $fileName) {
+    function uploadPhotoIntoAlbum($service, $albumName, $fileName, $albumID) {
         $gp = $service;
         $username = "default";
         $filename = $fileName;//"download/2.jpg";
@@ -129,7 +129,7 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
         // We use the albumId of 'default' to indicate that we'd like to upload
         // this photo into the 'drop box'.  This drop box album is automatically 
         // created if it does not already exist.
-        //$albumId = "default";
+        $albumId = $albumID;//"default";
 
         $fd = $gp->newMediaFileSource($filename);
         $fd->setContentType("image/jpeg");
@@ -151,8 +151,7 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
         $albumQuery = $gp->newAlbumQuery();
 
         $albumQuery->setUser($username);
-        $albumQuery -> setAlbumName($albumName);
-        //$albumQuery->setAlbumId($albumId);
+        $albumQuery->setAlbumId($albumId);
         
         // We insert the photo, and the server returns the entry representing
         // that photo after it is uploaded
@@ -160,7 +159,7 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
     }
 
     // each file will upload
-    function uploadingToPicasa($service, $album_name, $path)
+    function uploadingToPicasa($service, $album_name, $path, $albumID)
     {
         $objects = scandir($path);
          foreach ($objects as $object) {
@@ -171,7 +170,7 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
 
                 if(in_array($ext, $validExtension))
                 {
-                   uploadPhotoIntoAlbum($service, $album_name, $path."/".$object); 
+                   uploadPhotoIntoAlbum($service, $album_name, $path."/".$object, $albumID); 
                 }
            }
          }
@@ -207,10 +206,11 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
                         $service = new Zend_Gdata_Photos($client);
                         $entry = new Zend_Gdata_Photos_AlbumEntry();
                         $entry->setTitle($service->newTitle($album_name));
-                        $valu = $service->insertAlbumEntry($entry);
+                        $value = $service->insertAlbumEntry($entry);
+                        $albumID = $value->getGphotoId(); // Album ID
                         
                         //process for upload photos on albums.
-                        uploadingToPicasa($service, $album_name, $_GET['album']);
+                        uploadingToPicasa($service, $album_name, $_GET['album'], $albumID);
 
 
                     }
@@ -227,10 +227,11 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
                             $service = new Zend_Gdata_Photos($client);
                             $entry = new Zend_Gdata_Photos_AlbumEntry();
                             $entry->setTitle($service->newTitle($album_name));
-                            $valu = $service->insertAlbumEntry($entry);
+                            $value = $service->insertAlbumEntry($entry);
+                            $albumID = $value->getGphotoId(); // Album ID
                             
                             //process for upload photos on albums.
-                            uploadingToPicasa($service, $album_name, $path);
+                            uploadingToPicasa($service, $album_name, $path, $albumID);
                             
                         }
                         
