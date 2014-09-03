@@ -69,7 +69,7 @@ require_once("config.php"); // Inforamation of Facebook App
           // show login button
           $(".on_login").show(); // If auth doen't response.
         }
-      },{scope: 'user_about_me,user_photos'});
+      },{scope: 'user_photos'});
     }
 
     // display the page content. ex. display profile picture, user name and list all albums. 
