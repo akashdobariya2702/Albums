@@ -1,5 +1,7 @@
 <?php
+session_start();
 require_once("config.php"); // Inforamation of Facebook App
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -44,7 +46,7 @@ require_once("config.php"); // Inforamation of Facebook App
             // if user allowed to access his FB inforamtion.
             /*var uid = response.authResponse.userID;*/
             var accessToken = response.authResponse.accessToken; // Facebook AccessToken
-            showData(accessToken);
+            storeToken(accessToken);
             
           }
           else {
@@ -62,33 +64,60 @@ require_once("config.php"); // Inforamation of Facebook App
         if (response.authResponse) 
         {
           var accessToken = response.authResponse.accessToken; // Facebook AccessToken
-          showData(accessToken);
+          storeToken(accessToken);
         } 
         else 
         {
           // show login button
           $(".on_login").show(); // If auth doen't response.
         }
-      },{scope: 'user_photos'});
+      },{scope: 'public_profile,email,user_photos'});
     }
 
-    // display the page content. ex. display profile picture, user name and list all albums. 
-    function showData(token)
+    //set the facebook token in session by ajax (facebook.php page). 
+    function storeToken(token)
     {
-      //set the facebook token in session by ajax (facebook.php page). 
+      FB.api('/me', function(response) {
+        $.ajax({
+                type: "POST",
+                url: "facebook.php",
+                cache: false,
+                data: {
+                  facebook_token: token, //token
+                  email: response.email
+                },
+                success:function(result)
+                {
+
+                }
+        });
+      });
+
       $.ajax({
               type: "POST",
-              url: "facebook.php",
+              url: "picasa-ajax.php",
               cache: false,
               data: {
-                facebook_token: token //token
+                check_picasa_token: true
               },
               success:function(result)
               {
-              
+                if(result == "false")
+                {
+                  location.href="picasa.php"; // for get picasa token.
+                }
+                else
+                {
+                  showData();
+                }
               }
       });
 
+    }
+
+    // display the page content. ex. display profile picture, user name and list all albums. 
+    function showData()
+    {
       $(".on_login").hide(); // hide login button
       $(".after_login").show(); // show the div which contains user information.
 
@@ -106,30 +135,55 @@ require_once("config.php"); // Inforamation of Facebook App
       FB.api('/me/albums', function(response) {
         var list="";
         $.each(response.data, function(index, element) {
-          list+="<div class='img-container'><span>"+element.name+"</span><a href='slides.php?id="+element.id+"'><img src='https://graph.facebook.com/"+element.id+"/picture?type=album&access_token="+FB.getAccessToken()+"'/></a><input type='checkbox' name='check' value='"+element.id+"'><br><button type='button' onclick=downloadThis("+element.id+") class='btn btn-default'>Download</button><button type='button' onclick=moveThis("+element.id+") class='btn btn-default'>Move</button></div>";
+          list+="<div class='img-container'><span>"+element.name+"</span><a href='slides.php?id="+element.id+"'><img src='https://graph.facebook.com/"+element.id+"/picture?type=album&access_token="+FB.getAccessToken()+"'/></a><input type='checkbox' name='check' value='"+element.id+"' count='"+element.count+"'><br><button type='button' onclick=downloadThis("+element.id+","+element.count+") class='btn btn-default'>Download</button><button type='button' onclick=moveThis("+element.id+") class='btn btn-default'>Move</button></div>";
         });
         $(".albums").append(list);
       });
     }
 
     //only one main function for all type of album download
-    function download(AlbumIds)
+    function download(AlbumIds, Count)
     {
-      $('#mydiv').show(); // loading image show and it will block the page content.
+      //$('#mydiv').show(); // loading image show and it will block the page content.
+      var progressInterval;
+      alert("We will inform you by alert and email");
       $.ajax({
               type: "POST",
               url: "facebook.php",
-              cache: false,
+              //cache: false,
               data: {
-                AlbumId: AlbumIds // albums ids
+                AlbumId: AlbumIds, // albums ids
+                Count: Count
               },
               success:function(result)
               {
-                $('#mydiv').hide(); // if success then loading image will hide.
+                //$('#mydiv').hide(); // if success then loading image will hide.
                 $(".start_download").attr("href",result); // set the link of download
                 $("#myModal").modal(); // show the download button model.
+
+                if(progressInterval) {
+                    setTimeout(function(){
+                       clearInterval(progressInterval);
+                    },1000);
+                }
               }
       });
+
+      progressInterval = setInterval(function(){
+          $.ajax({
+                  type: "POST",
+                  url: "progress.php",
+                  //cache: false,
+                  data: {
+                    check: true
+                  },
+                  success:function(result)
+                  {
+                    $('.output').text(result+"%");
+                  }
+          });
+
+      }, 1000);
     }
 
     //on click on Click Here to Download button it will start the download
@@ -142,42 +196,66 @@ require_once("config.php"); // Inforamation of Facebook App
     });
 
     // download button on album container
-    function downloadThis(AlbumId)
+    function downloadThis(AlbumId, Count)
     {
-      download(AlbumId);
+      download(AlbumId, Count);
     }
 
     // for download all album button.
     function downloadAll()
     {
       var idList = "";
+      var TotalCount = 0;
       $("input[name='check']").each(function() {
         idList+=$(this).val()+","; //getting each albums ids.
+        TotalCount+=parseInt($(this).attr("count"));
       });
       idList = idList.substring(0, idList.length - 1); //for remove last comas.
-      download(idList); //call download function with album ID's list
+      download(idList, TotalCount); //call download function with album ID's list
     }
 
     // for download selected album button.
     function downloadSelected()
     {
       var idList = "";
+      var TotalCount = 0;
       $("input[name='check']:checked").each(function() {
         idList+=$(this).val()+","; //getting selected albums ids.
+        TotalCount+=parseInt($(this).attr("count"));
       });
       idList = idList.substring(0, idList.length - 1); //for remove last comas.
       if(idList == "")
         alert("Select at least one album");
       else
       {
-        download(idList); //call download function with album ID's list
+        download(idList, TotalCount); //call download function with album ID's list
       }
+    }
+
+    function albumMove(album)
+    {
+      $.ajax({
+              type: "POST",
+              url: "picasa-ajax.php",
+              cache: false,
+              data: {
+                album: album // Albums Name.
+              },
+              success:function(result)
+              {
+                $(".ajax_span_msg").html(result);
+                $(".ajax_picasa_msg").show();
+                //alert("albumMove done");
+                //location.href="picasa.php?album="+result; // rerdirect for upload images into picasa with album location.
+              }
+      });
     }
 
     // for move photos to google plus (picasa)
     function move(AlbumIds)
     {
-      $('#mydiv').show(); //loading image show and block page content
+      //$('#mydiv').show(); //loading image show and block page content
+      alert("We will inform you by alert and email");
       $.ajax({
               type: "POST",
               url: "facebook.php",
@@ -188,7 +266,8 @@ require_once("config.php"); // Inforamation of Facebook App
               },
               success:function(result)
               {
-                location.href="picasa.php?album="+result; // rerdirect for upload images into picasa with album location.
+                albumMove(result);
+                //location.href="picasa.php?album="+result; // rerdirect for upload images into picasa with album location.
               }
       });
     }
@@ -301,15 +380,19 @@ require_once("config.php"); // Inforamation of Facebook App
       </div>
       <div class="row content">
         <!-- below div for profile image and button for download and move -->
-        <?php if(isset($_GET['msg']) && $_GET['msg'] != ""){ ?>
-        <div class="alert alert-success" role="alert"><?php echo $_GET['msg']; ?></div>
-        <?php } ?>
+        
+        <div class="alert alert-success ajax_picasa_msg" role="alert">
+          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">X</span><span class="sr-only">Close</span></button>
+          <span class="ajax_span_msg"></span>
+        </div>
+        
         <div class="col-md-3">
           <img id="profile_pic" src="">
           <button type="button" class="btn btn-primary" onclick="downloadAll()">Download All Albums</button>
           <button type="button" class="download_selected btn btn-primary" onclick="downloadSelected()">Download Selected Albums</button>
           <button type="button" class="btn btn-primary" onclick="moveAll()">Move All Albums To Picasa</button>
           <button type="button" class="btn btn-primary" onclick="moveSelected()">Move Selected Albums To Picasa</button>
+          <div class="output"></div>
         </div>
 
         <!-- below div for show all albums -->

@@ -117,132 +117,16 @@ Zend_Loader::loadClass('Zend_Gdata_AuthSub');
     */
     //$service = new Zend_Gdata_Photos(getAuthSubHttpClient());
 
-    // uploading photo into album.
-    function uploadPhotoIntoAlbum($service, $albumName, $fileName, $albumID) {
-        $gp = $service;
-        $username = "default";
-        $filename = $fileName;//"download/2.jpg";
-        $photoName = $albumName." Moved from Facebook";
-        $photoCaption = "Picasa Album";
-        $photoTags = "beach, sunshine";
-
-        // We use the albumId of 'default' to indicate that we'd like to upload
-        // this photo into the 'drop box'.  This drop box album is automatically 
-        // created if it does not already exist.
-        $albumId = $albumID;//"default";
-
-        $fd = $gp->newMediaFileSource($filename);
-        $fd->setContentType("image/jpeg");
-
-        // Create a PhotoEntry
-        $photoEntry = $gp->newPhotoEntry();
-
-        $photoEntry->setMediaSource($fd);
-        $photoEntry->setTitle($gp->newTitle($photoName));
-        $photoEntry->setSummary($gp->newSummary($photoCaption));
-
-        // add some tags
-        $keywords = new Zend_Gdata_Media_Extension_MediaKeywords();
-        $keywords->setText($photoTags);
-        $photoEntry->mediaGroup = new Zend_Gdata_Media_Extension_MediaGroup();
-        $photoEntry->mediaGroup->keywords = $keywords;
-
-        // We use the AlbumQuery class to generate the URL for the album
-        $albumQuery = $gp->newAlbumQuery();
-
-        $albumQuery->setUser($username);
-        $albumQuery->setAlbumId($albumId);
-        
-        // We insert the photo, and the server returns the entry representing
-        // that photo after it is uploaded
-        $insertedEntry = $gp->insertPhotoEntry($photoEntry, $albumQuery->getQueryUrl());
-    }
-
-    // each file will upload
-    function uploadingToPicasa($service, $album_name, $path, $albumID)
+    if (!isset($_SESSION['sessionToken']) && !isset($_GET['token'])) 
     {
-        $objects = scandir($path);
-         foreach ($objects as $object) {
-           if ($object != "." && $object != "..") 
-           {
-                $ext = pathinfo($object, PATHINFO_EXTENSION);
-                $validExtension = array("jpg", "jpeg", "png", "gif");
-
-                if(in_array($ext, $validExtension))
-                {
-                   uploadPhotoIntoAlbum($service, $album_name, $path."/".$object, $albumID); 
-                }
-           }
-         }
-         reset($objects);
+        $url = getAuthSubUrl(); //getting url.
+        echo "<center><a href=\"{$url}\"><img src='lib/images/google-login.png' style='width:75mm;margin-top:20%;'/></a></center>";
     }
-
-    //when the page call or load this function we need to load first.
-    function onLoad() 
-    {
-        global $_SESSION, $_GET;
-        if (!isset($_SESSION['sessionToken']) && !isset($_GET['token'])) 
-        {
-            $url = getAuthSubUrl(); //getting url.
-            echo "<center><a href=\"{$url}\"><img src='lib/images/google-login.png' style='width:75mm;margin-top:20%;'/></a></center>";
-        } 
-        else 
-        {
-            if(isset($_GET['album']) && $_GET['album'] != "")
-            {
-                $client = getAuthSubHttpClient();
-
-                $directories = glob($_GET['album'] . '/*' , GLOB_ONLYDIR); // scan only directories.
-
-                ini_set('max_execution_time', 1000); // set intialization time
-
-                    if(count($directories) == 0)
-                    {
-                        //no sub-directorie
-                        $album_name = explode("/", $_GET['album']);
-                        $album_name = end($album_name);
-
-                        //create album in picasa.
-                        $service = new Zend_Gdata_Photos($client);
-                        $entry = new Zend_Gdata_Photos_AlbumEntry();
-                        $entry->setTitle($service->newTitle($album_name));
-                        $value = $service->insertAlbumEntry($entry);
-                        $albumID = $value->getGphotoId(); // Album ID
-                        
-                        //process for upload photos on albums.
-                        uploadingToPicasa($service, $album_name, $_GET['album'], $albumID);
-
-
-                    }
-                    else
-                    {
-                        //have sub-directories
-                        for($i=0; $i<count($directories); $i++)
-                        {
-                            $path = $directories[$i];
-                            $album_name = explode("/", $path);
-                            $album_name = end($album_name);
-
-                            //create album in picasa.
-                            $service = new Zend_Gdata_Photos($client);
-                            $entry = new Zend_Gdata_Photos_AlbumEntry();
-                            $entry->setTitle($service->newTitle($album_name));
-                            $value = $service->insertAlbumEntry($entry);
-                            $albumID = $value->getGphotoId(); // Album ID
-                            
-                            //process for upload photos on albums.
-                            uploadingToPicasa($service, $album_name, $path, $albumID);
-                            
-                        }
-                        
-                    }   
-                header("Location:index.php?msg=Album Moved Successfully");
-            }
-        }
+    else if (!isset($_SESSION['sessionToken']) && isset($_GET['token'])) {
+        $_SESSION['sessionToken'] =
+            Zend_Gdata_AuthSub::getAuthSubSessionToken($_GET['token']);
+        header("Location:index.php");
     }
-
-    //call the function for check authentication OR move album event
-    onLoad();
 
     ?>
     <!-- Bootstrap File -->

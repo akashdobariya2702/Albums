@@ -1,7 +1,8 @@
 <?php
 // for store the tocken value in session.
 session_start();
-//print_r($_SESSION);
+
+require 'vendor/autoload.php';
 require_once("config.php");
  
 require_once( 'lib/Facebook/HttpClients/FacebookHttpable.php' );
@@ -58,6 +59,7 @@ if(isset($_POST['facebook_token']) && $_POST['facebook_token'] != "")
 {
   // storing the token value in session
   $_SESSION['facebook_token'] = $_POST['facebook_token'];
+  $_SESSION['email'] = $_POST['email'];
   return true;
 }
 
@@ -136,10 +138,10 @@ function Zip($source, $destination)
 // download the album using album id and it will copy image into folder(path) 
 function downloadAlbum($id, $path)
 {
-  global $session;
+  global $session, $_SESSION;
   $data = "";
   try {
-    ini_set('max_execution_time', 300);
+    //ini_set('max_execution_time', 300);
     $request = new FacebookRequest($session, "GET", "/".$id."/photos?fields=source");
     $response = $request->execute();
     $graphObject = $response->getGraphObject();
@@ -154,9 +156,17 @@ function downloadAlbum($id, $path)
         if(strpos($ext,'?') !== false)
           $ext = substr($ext, 0, strpos($ext, "?"));
         copy($file['source'], $path."/".$fileName.".".$ext);
+
         $data.=$fileName.".".$ext."\n";
         $fileName++;
+
+        //for progress
+        session_start();
+        $_SESSION['Progress']++;
+        $data.="==".$_SESSION['Progress'];
+        session_write_close();
     }
+    session_start();
     return true;
 
   } catch (FacebookRequestException $ex) {
@@ -170,6 +180,9 @@ function downloadAlbum($id, $path)
 if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
 {
   //ini_set('max_execution_time', 1000);
+  $_SESSION['Count'] = $_POST['Count']; // Set total no. of download photos
+  $_SESSION['Progress'] = 0; //Initialy progress 0
+
   $albumList = explode(",", $_POST['AlbumId']); // make the array of AlbumId.
   $sizeArray = count($albumList); // album length.
   if($sizeArray>1)
@@ -230,6 +243,18 @@ if(isset($_POST['AlbumId']) && $_POST['AlbumId'] != "")
   else
   {
     Zip($path, $path.".zip");
+
+    $url = "<a href=\"http://album123.herokuapp.com/".str_replace(" ","%20",$path).".zip\" target=\"_blank\">Click Here to Download</a>";
+
+    $sendgrid = new SendGrid($SEND_GRID_ID, $SEND_GRID_PASSWORD);
+    $message = new SendGrid\Email();
+    $message->addTo($_SESSION['email'])->
+              setFrom("album@album123.com")->
+              setSubject("Your Facebook Album Has Been Created as .ZIP")->
+              setText("Facebook Album")->
+              setHtml("<p>Your Facebook Album Download Link.</p><p>".$url."</p>");
+    $response = $sendgrid->send($message);
+
     echo $path.".zip"; 
   }
   
