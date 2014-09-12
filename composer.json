@@ -1,0 +1,7 @@
+{
+    "require": {
+    	"ext-mbstring": "*",
+    	"sendgrid/sendgrid": "2.0.5",
+    	"symfony/symfony": "2.1.*"
+    }
+}
